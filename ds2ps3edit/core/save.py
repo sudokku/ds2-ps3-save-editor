@@ -68,20 +68,6 @@ class SaveHandle:
             write_stats(buf, adjusted)
         self.stats = adjusted
 
-
-def _reconcile_souls_memory(current: Stats, requested: Stats) -> Stats:
-    """Return `requested` with SoulsMemory derived from the wallet delta."""
-    wallet_delta = requested.Souls - current.Souls
-    new_memory = current.SoulsMemory + max(0, wallet_delta)
-    # Never let memory drop below the current wallet (would be nonsensical).
-    new_memory = max(new_memory, requested.Souls)
-    return Stats(
-        VGR=requested.VGR, END=requested.END, VIT=requested.VIT, ATN=requested.ATN,
-        STR=requested.STR, DEX=requested.DEX, INT=requested.INT, FTH=requested.FTH,
-        ADP=requested.ADP, Level=requested.Level,
-        Souls=requested.Souls, SoulsMemory=new_memory,
-    )
-
     def apply_item_qty(self, item_offset: int, new_qty: int) -> None:
         """Stage a quantity change for the item at `item_offset` to every mirror.
 
@@ -105,3 +91,17 @@ def _reconcile_souls_memory(current: Stats, requested: Stats) -> Stats:
         for path, buf in self._mirror_buffers.items():
             path.write_bytes(bytes(buf))
         return backup_path
+
+
+def _reconcile_souls_memory(current: Stats, requested: Stats) -> Stats:
+    """Return `requested` with SoulsMemory derived from the wallet delta."""
+    wallet_delta = requested.Souls - current.Souls
+    new_memory = current.SoulsMemory + max(0, wallet_delta)
+    # Never let memory drop below the current wallet (would be nonsensical).
+    new_memory = max(new_memory, requested.Souls)
+    return Stats(
+        VGR=requested.VGR, END=requested.END, VIT=requested.VIT, ATN=requested.ATN,
+        STR=requested.STR, DEX=requested.DEX, INT=requested.INT, FTH=requested.FTH,
+        ADP=requested.ADP, Level=requested.Level,
+        Souls=requested.Souls, SoulsMemory=new_memory,
+    )
