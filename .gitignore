@@ -1,0 +1,24 @@
+# Live-save backups (personal save data)
+saves/live-backup-*/
+
+# Working directory (extracted saves + third-party reference clones)
+work/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
