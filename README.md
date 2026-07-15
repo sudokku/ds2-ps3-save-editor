@@ -24,11 +24,25 @@ Not yet: weapon upgrade/infusion editing, boss/NPC/event flags, appearance slide
 
 ## Requirements
 
-- **Python 3.12+** (Tkinter ships with it — no `pip install` needed for the MVP)
+- **Python 3.12+** with **Tkinter**
 - **RPCS3** with a Dark Souls II NPUB31358 save
 - **The game fully quit and RPCS3 closed** before saving edits
 
 Tested on macOS. Should work on Linux and Windows — the save-path auto-detection assumes the macOS RPCS3 layout; on other OSes you'll need to use "Open save…" and pick the directory manually.
+
+### Getting Tkinter
+
+Tkinter is bundled with the official Python installers from python.org. Some package managers split it into a separate install:
+
+| Platform | Install command |
+|---|---|
+| **macOS (Homebrew)** | `brew install python-tk@3.14` (match your Python version) |
+| **Debian / Ubuntu** | `sudo apt install python3-tk` |
+| **Fedora** | `sudo dnf install python3-tkinter` |
+| **Arch** | `sudo pacman -S tk` |
+| **Windows / python.org macOS installer** | already included |
+
+Test with `python3 -c "import tkinter"` — silence means you're good.
 
 ---
 
