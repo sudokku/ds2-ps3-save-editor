@@ -51,10 +51,36 @@ class SaveHandle:
         return sorted(p.name for p in self._mirror_buffers)
 
     def apply_stats(self, new_stats: Stats) -> None:
-        """Stage a stats-block update to every mirror."""
+        """Stage a stats-block update to every mirror.
+
+        SoulsMemory is derived, not user-set. It represents total souls earned
+        for the lifetime of the character and is monotonic in the game (spending
+        souls does not decrease it). We enforce that here:
+          - If the wallet increases, memory grows by the same delta (as if the
+            player earned those souls organically).
+          - If the wallet decreases or stays the same, memory is left alone
+            (simulating a spend).
+          - Any explicit user-supplied SoulsMemory value is discarded to keep
+            the field internally consistent — the UI should not expose it.
+        """
+        adjusted = _reconcile_souls_memory(current=self.stats, requested=new_stats)
         for buf in self._mirror_buffers.values():
-            write_stats(buf, new_stats)
-        self.stats = new_stats
+            write_stats(buf, adjusted)
+        self.stats = adjusted
+
+
+def _reconcile_souls_memory(current: Stats, requested: Stats) -> Stats:
+    """Return `requested` with SoulsMemory derived from the wallet delta."""
+    wallet_delta = requested.Souls - current.Souls
+    new_memory = current.SoulsMemory + max(0, wallet_delta)
+    # Never let memory drop below the current wallet (would be nonsensical).
+    new_memory = max(new_memory, requested.Souls)
+    return Stats(
+        VGR=requested.VGR, END=requested.END, VIT=requested.VIT, ATN=requested.ATN,
+        STR=requested.STR, DEX=requested.DEX, INT=requested.INT, FTH=requested.FTH,
+        ADP=requested.ADP, Level=requested.Level,
+        Souls=requested.Souls, SoulsMemory=new_memory,
+    )
 
     def apply_item_qty(self, item_offset: int, new_qty: int) -> None:
         """Stage a quantity change for the item at `item_offset` to every mirror.

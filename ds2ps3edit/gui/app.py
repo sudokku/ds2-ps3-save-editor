@@ -43,10 +43,14 @@ class EditorApp:
         stats_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 8))
         for i, (name, _rel, _size) in enumerate(STAT_FIELDS):
             r, c = divmod(i, 4)
-            ttk.Label(stats_frame, text=name).grid(row=r * 2, column=c, sticky="w", padx=(6, 0))
+            label_text = f"{name} (auto)" if name == "SoulsMemory" else name
+            ttk.Label(stats_frame, text=label_text).grid(row=r * 2, column=c, sticky="w", padx=(6, 0))
             var = tk.StringVar()
             self._stat_vars[name] = var
-            ttk.Entry(stats_frame, textvariable=var, width=14).grid(row=r * 2 + 1, column=c, padx=(6, 12), pady=(0, 4))
+            entry_state = "readonly" if name == "SoulsMemory" else "normal"
+            ttk.Entry(stats_frame, textvariable=var, width=14, state=entry_state).grid(
+                row=r * 2 + 1, column=c, padx=(6, 12), pady=(0, 4)
+            )
 
         inv_frame = ttk.LabelFrame(body, text="Inventory  (double-click a qty cell to edit editable items)", padding=6)
         inv_frame.grid(row=1, column=0, columnspan=2, sticky="nsew")
@@ -157,6 +161,8 @@ class EditorApp:
         except Exception as exc:  # noqa: BLE001
             messagebox.showerror("Save failed", str(exc))
             return
+        # Reflect any derived-field adjustments (e.g. SoulsMemory) back into the UI.
+        self._refresh()
         messagebox.showinfo("Saved", f"Backup: {backup}\nWrote {len(self.save.mirror_names)} mirror(s).")
 
 

@@ -1,20 +1,49 @@
 """Item ID to display name lookup.
 
-Starter catalog with the four items verified during reverse engineering.
-Replace with a scraped community database (see HANDOFF.md next-steps) for
-a functional MVP UI.
+Merges a bundled JSON catalog (data/items.json) with a small hard-coded
+fallback verified during reverse engineering. JSON is optional — the module
+works without it, just with a smaller catalog.
 
-Item ID formula: save_u32 = GoodsParam_row * 10000.
+Item ID formula: save_u32 = GoodsParam_row * 10000
+                             (+ optional 3-digit upgrade suffix for gear).
 """
 from __future__ import annotations
 
-# Verified against Archives A..E with known in-game state.
-_ITEMS: dict[int, str] = {
+import json
+from pathlib import Path
+
+# Verified against Archives A..E with known in-game state. Always available.
+_FALLBACK_ITEMS: dict[int, str] = {
     50920000: "Soul of a Giant",
     60010000: "Lifegem",
     60510000: "Rubbish",
     60680000: "Large Soul of a Proud Knight",
 }
+
+_CATALOG_PATH = Path(__file__).resolve().parent.parent / "data" / "items.json"
+
+
+def _load_catalog() -> tuple[dict[int, str], dict[int, str]]:
+    """Return (names, types) merged from JSON + fallback."""
+    names: dict[int, str] = {}
+    types: dict[int, str] = {}
+    if _CATALOG_PATH.exists():
+        try:
+            raw = json.loads(_CATALOG_PATH.read_text())
+            for k, v in raw.items():
+                item_id = int(k)
+                names[item_id] = v["name"]
+                if "type" in v:
+                    types[item_id] = v["type"]
+        except (ValueError, KeyError, OSError):
+            # Corrupt catalog — fall through to hardcoded only.
+            pass
+    # Fallback wins on collision (hand-verified).
+    names.update(_FALLBACK_ITEMS)
+    return names, types
+
+
+_ITEMS, _TYPES = _load_catalog()
 
 
 def name_for(item_id: int) -> str:
@@ -27,11 +56,15 @@ def is_known(item_id: int) -> bool:
 
 
 def item_type_from_id(item_id: int) -> str:
-    """Coarse type classification based on Jappi88's range table.
+    """Coarse type classification.
 
-    Only the last 4 decimal digits of the id are the range key.
-    Note: Soul-type items (row 5xxx) are outside Jappi88's documented ranges.
+    Uses the JSON-supplied type when available. Falls back to Jappi88's
+    range table applied to the last 4 decimal digits of the id.
+    Soul-type items (row 5xxx) are outside Jappi88's documented ranges.
     """
+    catalog_type = _TYPES.get(item_id)
+    if catalog_type:
+        return catalog_type
     row = item_id // 10000
     if 10 <= row <= 129: return "weapon"
     if 130 <= row <= 139: return "bow"
