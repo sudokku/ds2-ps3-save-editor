@@ -37,13 +37,15 @@ Tested on macOS. Should work on Linux and Windows — the save-path auto-detecti
 ```bash
 git clone https://github.com/sudokku/ds2-ps3-save-editor
 cd ds2-ps3-save-editor
-python -m ds2ps3edit
+python3 -m ds2ps3edit
 ```
+
+On macOS use `python3` — Apple removed the ambiguous `python` alias. On Windows/Linux, whichever of `python`/`python3` points at 3.12+ is fine.
 
 Or install as a script:
 
 ```bash
-pip install -e .
+pip3 install -e .
 ds2ps3edit
 ```
 

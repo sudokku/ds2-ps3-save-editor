@@ -28,7 +28,7 @@ ds2ps3edit/          ← the Python package (MVP)
     save.py          ← SaveHandle: open → mutate → commit
   gui/
     app.py           ← Tkinter MVP window
-  __main__.py        ← python -m ds2ps3edit
+  __main__.py        ← python3 -m ds2ps3edit
 analysis/            ← throwaway analysis scripts (not part of the package)
   find_item.py       ← standalone inventory scanner
 saves/               ← reference snapshots (immutable) + timestamped backups
@@ -66,7 +66,7 @@ work/                ← extracted archives + third-party clones (gitignored)
 
 ```bash
 # Run the GUI against the auto-detected RPCS3 save
-python -m ds2ps3edit
+python3 -m ds2ps3edit
 
 # Standalone item scanner on an extracted character-slot file
 python analysis/find_item.py work/extracted/Archive-E/101USER.DAT

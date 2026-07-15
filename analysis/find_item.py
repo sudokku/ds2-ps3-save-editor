@@ -1,7 +1,7 @@
 """Locate item records in a DS2 PS3 character-slot file.
 
 Usage:
-    python analysis/find_item.py <path-to-USER.DAT> [--all]
+    python3 analysis/find_item.py <path-to-USER.DAT> [--all]
 
 Scans a character-slot file (`01USER.DAT` etc., 111,292 bytes) for item records.
 By default lists only records that match the confirmed 16-byte shape.
